@@ -111,7 +111,9 @@ editor addon, SCP — whichever).
 
 ### 5-1. Install via HACS
 
-HACS → Frontend → search `floor3d-card` → install → restart HA.
+HACS → **Dashboard** tab → search `floor3d-card` → click the result → **DOWNLOAD** → refresh browser.
+
+> HACS 2.0+ exposes four categories: **Integration / Dashboard / Template / Theme**. Lovelace cards like `floor3d-card` live under **Dashboard** (the old `Frontend` label was retired).
 
 ### 5-2. Card YAML starter
 

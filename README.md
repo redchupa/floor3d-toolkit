@@ -222,10 +222,12 @@ http://<HA-IP>:8123/local/floor3d/home.glb
 HA 안에서 카드 라이브러리를 설치해요.
 
 1. HA 좌측 메뉴 **HACS** 클릭
-2. **Frontend** 탭
-3. 우상단 점 3개 메뉴 → **Custom repositories** (필요한 경우) 또는 직접 검색
-4. `floor3d-card` 검색 → 클릭 → **DOWNLOAD**
-5. **HA 재시작** (설정 → 시스템 → 재시작)
+2. 상단의 **Dashboard** 탭 선택 (HACS 카테고리: Integration / **Dashboard** / Template / Theme 중)
+3. 우상단 검색창에 `floor3d-card` 입력 → 결과 클릭
+4. 우하단 **DOWNLOAD** 버튼 클릭
+5. **브라우저 새로고침** (HA 재시작은 필수 아님)
+
+> 💡 만약 검색 결과에 안 보이면, 우상단 점 3개 메뉴 → **Custom repositories** → `https://github.com/adizanni/floor3d-card` 추가 → Type: `Dashboard` 선택 → 저장 후 다시 검색.
 
 ---
 

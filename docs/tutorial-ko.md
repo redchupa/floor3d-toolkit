@@ -120,7 +120,9 @@ dist/
 
 ### 5-1. HACS에서 설치
 
-HACS → Frontend → `floor3d-card` 검색 + 설치 + HA 재시작.
+HACS → **Dashboard** 탭 → 검색창에 `floor3d-card` → 결과 클릭 → **DOWNLOAD** → 브라우저 새로고침.
+
+> 💡 HACS 2.0 이후 카테고리는 **Integration / Dashboard / Template / Theme** 4개. floor3d-card는 Lovelace 카드라 **Dashboard** 에 속합니다.
 
 ### 5-2. 카드 YAML 작성
 

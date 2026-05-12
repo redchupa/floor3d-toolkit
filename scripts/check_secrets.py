@@ -38,6 +38,7 @@ FORBIDDEN: tuple[tuple[re.Pattern[str], str], ...] = (
 EXEMPT_FILES = {
     "scripts/check_secrets.py",
     "CLAUDE.md",
+    "DEV_NOTES.md",
     "PLAN.md",
     ".gitignore",
 }
