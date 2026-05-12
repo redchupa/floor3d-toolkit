@@ -14,7 +14,7 @@ This tutorial covers **Approach A**.
 
 | | Approach A — **this tutorial** (dynamic 3D) | Approach B (static PNG) |
 |---|---|---|
-| Plugin | `adizanni/ExportToHASS` | `shmuelzon/HomeAssistantFloorPlan` |
+| Plugin | `adizanni/ExportToHASS` | `shmuelzon/home-assistant-floor-plan` |
 | HA card | `floor3d-card` | built-in `picture-elements` |
 | Feel | rotate / zoom, real-time lighting | lightweight, ON/OFF PNG swap |
 | This toolkit | **used** (`pack` command) | not used |
@@ -28,10 +28,10 @@ great choice. Pick Approach A when you want the interactive 3D dashboard.
 
 | | |
 |---|---|
-| Sweet Home 3D | Free / GPL — http://www.sweethome3d.com/download.jsp |
+| Sweet Home 3D | Free / GPL — https://www.sweethome3d.com/download.jsp |
 | ExportToHASS plugin (`.sh3p`) | https://github.com/adizanni/ExportToHASS/releases/latest/download/ExportToHASSPlugin.sh3p |
 | Python | 3.11+ |
-| Home Assistant | + [HACS](https://hacs.xyz) (to install `floor3d-card`) |
+| Home Assistant | + [HACS](https://www.hacs.xyz/) (to install `floor3d-card`) |
 
 ### Install the ExportToHASS plugin (one-off)
 

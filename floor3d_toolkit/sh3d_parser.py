@@ -15,7 +15,7 @@ The XML inside is single-quoted attribute-only form, e.g.::
                       width='160' depth='200' height='45' angle='0'/>
 
 Reference (Sweet Home 3D is GPL OSS):
-    http://www.sweethome3d.com/userGuide.jsp
+    https://www.sweethome3d.com/userGuide.jsp
 """
 
 from __future__ import annotations

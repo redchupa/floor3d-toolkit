@@ -12,7 +12,7 @@ See [`PLAN.md` §7](../../PLAN.md) for the security rationale.
 
 ## Generating `sample_apartment.sh3d` (manual, one-time)
 
-`.sh3d` files are produced by the [Sweet Home 3D](http://www.sweethome3d.com/) desktop
+`.sh3d` files are produced by the [Sweet Home 3D](https://www.sweethome3d.com/) desktop
 application. The fixture should be a small, generic floor plan:
 
 1. Launch Sweet Home 3D (free / GPL).
