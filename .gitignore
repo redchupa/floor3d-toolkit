@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# Virtual env
+.venv/
+venv/
+env/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Test
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 3D files — never commit personal home models
+*.sh3d
+!tests/fixtures/sample_*.sh3d
+*.obj
+!tests/fixtures/sample_*.obj
+*.mtl
+!tests/fixtures/sample_*.mtl
+*.glb
+!tests/fixtures/sample_*.glb
+
+# Personal home files
+myhome*
+sweethome/
+
+# Local-only dev notes
+CLAUDE.md

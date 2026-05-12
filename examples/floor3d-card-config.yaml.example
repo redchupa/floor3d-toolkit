@@ -1,0 +1,51 @@
+# floor3d-card configuration — example (synthetic, mirrors what
+# `floor3d-toolkit convert` writes to dist/<name>.card-config.yaml).
+#
+# Drop this into a manual Lovelace card editor after replacing
+# the entity IDs with your own.
+
+type: custom:floor3d-card
+name: My Apartment
+path: /local/floor3d/
+objfile: home.glb
+backgroundColor: '#0a0e1a'
+globalLightPower: 0.4
+shadow: 'no'
+click: 'yes'
+header: 'no'
+lock_camera: 'no'
+show_axes: 'no'
+sky: 'no'
+style: 'height: 600px;'
+entities:
+  - entity: light.living_room_main
+    type3d: light
+    object_id: light_living_main
+    action: more-info
+    light:
+      lumens: 800
+      color: '#fff0c8'
+      decay: 1
+      distance: 350
+      shadow: 'no'
+
+  - entity: switch.kitchen_main
+    type3d: light
+    object_id: light_kitchen_main
+    action: more-info
+    light:
+      lumens: 600
+      color: '#fff0c8'
+      decay: 1
+      distance: 300
+      shadow: 'no'
+
+  - entity: switch.refrigerator
+    type3d: color
+    object_id: furn_refrigerator
+    action: more-info
+    colorcondition:
+      - state: 'on'
+        color: '#ffc864'
+      - state: 'off'
+        color: '#2d3a55'

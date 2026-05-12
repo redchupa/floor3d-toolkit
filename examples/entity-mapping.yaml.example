@@ -1,0 +1,31 @@
+# floor3d-toolkit entity mapping — example (synthetic)
+#
+# Keys are mesh node names in your .glb (one per light / furniture / door).
+# Values are Home Assistant entity_id strings. Set `null` to skip a node.
+#
+# Re-run `floor3d-toolkit convert` with `--mapping path/to/this.yaml`
+# to wire these into the card config.
+
+entities:
+  # --- lights (auto-suggested with confidence 0.6) ---
+  light_living_main: light.living_room_main
+  light_living_secondary: light.living_room_secondary
+  light_kitchen_main: switch.kitchen_main
+  light_kitchen_dining: switch.kitchen_dining
+  light_bedroom_master: light.bedroom_master
+  light_bathroom_main: switch.bathroom_main
+  light_pantry: switch.pantry
+  light_hallway: switch.hallway
+
+  # --- switches / appliances ---
+  furn_refrigerator: switch.refrigerator
+  furn_washing_machine: switch.washing_machine
+  furn_tv: media_player.living_room_tv
+
+  # --- doors / windows (auto-suggested with confidence 0.4) ---
+  door_front_entry: binary_sensor.front_door
+  door_balcony: binary_sensor.balcony_door
+
+  # --- nodes you don't want bound: leave as null ---
+  furn_sofa: null
+  furn_dining_table: null
