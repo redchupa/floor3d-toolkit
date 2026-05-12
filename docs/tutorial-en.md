@@ -111,7 +111,11 @@ editor addon, SCP — whichever).
 
 ### 5-1. Install via HACS
 
-HACS → **Dashboard** tab → search `floor3d-card` → click the result → **DOWNLOAD** → refresh browser.
+HACS → **Dashboard** tab → search **`floor3d-card`** (the one by `adizanni`) → click the result → **DOWNLOAD** → refresh browser.
+
+> ⚠️ Don't confuse the two packages:
+> - `adizanni/floor3d-card` — the Lovelace card you install in HACS Dashboard (this step).
+> - `redchupa/floor3d-toolkit` — the PC-side Python CLI you `pip install`-ed in step 3. It is **not** an HACS plugin; adding it to HACS produces `Repository structure not compliant`.
 
 > HACS 2.0+ exposes four categories: **Integration / Dashboard / Template / Theme**. Lovelace cards like `floor3d-card` live under **Dashboard** (the old `Frontend` label was retired).
 

@@ -120,7 +120,11 @@ dist/
 
 ### 5-1. HACS에서 설치
 
-HACS → **Dashboard** 탭 → 검색창에 `floor3d-card` → 결과 클릭 → **DOWNLOAD** → 브라우저 새로고침.
+HACS → **Dashboard** 탭 → 검색창에 **`floor3d-card`** (adizanni 가 만든 것) → 결과 클릭 → **DOWNLOAD** → 브라우저 새로고침.
+
+> ⚠️ **`floor3d-toolkit` 과 헷갈리지 마세요**:
+> - `adizanni/floor3d-card` ← HACS Dashboard에 설치하는 Lovelace 카드 (이 단계)
+> - `redchupa/floor3d-toolkit` ← PC에서 `pip install` 로 쓰는 CLI 도구 (단계 3에서 설치 끝). HACS에 등록하면 `Repository structure not compliant` 에러.
 
 > 💡 HACS 2.0 이후 카테고리는 **Integration / Dashboard / Template / Theme** 4개. floor3d-card는 Lovelace 카드라 **Dashboard** 에 속합니다.
 

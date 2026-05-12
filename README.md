@@ -219,15 +219,19 @@ http://<HA-IP>:8123/local/floor3d/home.glb
 
 ## 7단계 — floor3d-card 설치
 
-HA 안에서 카드 라이브러리를 설치해요.
+HA 안에서 **카드 라이브러리** 를 설치해요. (지금 쓰고 있는 이 `floor3d-toolkit` 과는 **다른** 패키지입니다 — toolkit은 본인 PC에서 GLB를 만드는 CLI 도구, floor3d-card는 HA 안에서 그 GLB를 렌더하는 카드. 둘 다 필요.)
 
 1. HA 좌측 메뉴 **HACS** 클릭
 2. 상단의 **Dashboard** 탭 선택 (HACS 카테고리: Integration / **Dashboard** / Template / Theme 중)
-3. 우상단 검색창에 `floor3d-card` 입력 → 결과 클릭
+3. 우상단 검색창에 **`floor3d-card`** 입력 → `adizanni` 가 만든 결과 클릭 ⚠️ (`floor3d-toolkit` 아님)
 4. 우하단 **DOWNLOAD** 버튼 클릭
 5. **브라우저 새로고침** (HA 재시작은 필수 아님)
 
-> 💡 만약 검색 결과에 안 보이면, 우상단 점 3개 메뉴 → **Custom repositories** → `https://github.com/adizanni/floor3d-card` 추가 → Type: `Dashboard` 선택 → 저장 후 다시 검색.
+> ⚠️ **혼동 주의**:
+> - `adizanni/floor3d-card` ← **이걸** HACS에 설치 (HA 안의 Lovelace 카드)
+> - `redchupa/floor3d-toolkit` ← 이건 PC에서 `pip install` 로 설치하는 CLI 도구. HACS 카드 형식이 아니라서 HACS 에 추가하면 `Repository structure not compliant` 에러가 납니다. 4단계에서 이미 PC에 설치했으니 끝.
+
+> 💡 만약 HACS 검색 결과에 `floor3d-card` 가 안 보이면, 우상단 점 3개 메뉴 → **Custom repositories** → `https://github.com/adizanni/floor3d-card` 추가 → Type: `Dashboard` 선택 → 저장 후 다시 검색.
 
 ---
 
