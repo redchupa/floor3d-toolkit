@@ -4,6 +4,11 @@ on:
   release:
     types: [published]
 
+env:
+  # Opt into Node.js 24 for actions still bundled on Node 20 (silences the
+  # 2026 deprecation warning until each action publishes a Node 24 build).
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   build:
     runs-on: ubuntu-latest
