@@ -36,10 +36,12 @@ great choice. Pick Approach A when you want the interactive 3D dashboard.
 ### Install the ExportToHASS plugin (one-off)
 
 1. Download `ExportToHASSPlugin.sh3p` from the URL above.
-2. Launch Sweet Home 3D → `File → Preferences → Plugins`.
-3. **Import...** the `.sh3p` file (or drag it onto the SH3D window).
-4. Restart Sweet Home 3D.
-5. Verify: `File → Export` now contains an **`Export to Home Assistant`** item.
+2. Copy it into the SH3D plugins folder (create the folder if it doesn't exist):
+   - **Windows**: `%APPDATA%\eTeks\SweetHome3D\plugins\`
+   - **macOS**: `~/Library/Application Support/eTeks/SweetHome3D/plugins/`
+   - **Linux**: `~/.eteks/sweethome3d/plugins/`
+3. Restart Sweet Home 3D.
+4. Verify: menu **`Tools → Export obj to HASS`** appears.
 
 ---
 
@@ -48,29 +50,39 @@ great choice. Pick Approach A when you want the interactive 3D dashboard.
 1. Walls at real dimensions.
 2. Furniture from the stock catalogue.
 3. **At least one ceiling light per room/area** from the `Lights` category.
-4. Rename each light to something recognisable (e.g. `Living Main Light`).
+4. Rename each light to something recognisable (e.g. `Living_Main_Light`).
 5. Save as `myhome.sh3d`.
 
-> ⚠️ **Use Latin (ASCII) names only inside SH3D.** The ExportToHASS plugin
-> does not handle non-ASCII mesh names correctly. Korean / Japanese / etc.
-> HA entity IDs are fine — only the SH3D mesh node names need to be ASCII.
+### ⚠️ Object naming rules (strict)
 
-The light's name becomes the GLB's mesh node name, which is what
-`floor3d-card` uses as `object_id`. Clear, ASCII names = easier mapping
-later.
+ExportToHASS only accepts **`a-z`, `A-Z`, `0-9`, `_` (underscore)**. Spaces,
+hyphens, and non-ASCII characters are rejected at export time.
+
+| ❌ Wrong | ✅ Right |
+|---|---|
+| `안방 조명` | `Bedroom_Master` |
+| `Living Main Light` (spaces) | `Living_Main_Light` |
+| `Kitchen-Dining` (hyphen) | `Kitchen_Dining` |
+
+HA `entity_id` values can be anything you like (including Korean); only
+SH3D **mesh node names** are restricted. The name you set on each object
+in SH3D becomes the GLB mesh node name, which `floor3d-card` references
+as `object_id`.
 
 ---
 
 ## 2. Export to Home Assistant
 
-`File → Export → Export to Home Assistant` → pick an output folder.
+In SH3D, with your plan open, click menu **`Tools → Export obj to HASS`**
+and pick a save location for the zip file (e.g.
+`~/Desktop/myhome_export.zip`).
 
-Outputs:
+Unzip it — the resulting folder contains:
 ```
 home.obj
 home.mtl
-home_<lots>.jpeg     # 14+ texture files
-home.json            # mesh node -> friendly name map
+home_<lots>.jpeg     # ~14 texture files
+home.json            # mesh-node → friendly name map
 ```
 
 ---
@@ -183,7 +195,8 @@ without the flag → clean production GLB with invisible fixture boxes.
 | Whole scene blown out white | Per-light `lumens` too high. Drop to 500-800. Pair with `globalLightPower: 0.25` |
 | Pitch black when lights are off | Re-pack with `floor3d-toolkit pack` — `emissive_factor=0.18` keeps the plan readable at night |
 | Adding furniture in SH3D broke existing mappings | Same name → suffix `_1`, `_2`. Use unique names |
-| `Tools` menu in SH3D has no export item | Plugin not installed or SH3D wasn't restarted. Check `%APPDATA%\eTeks\SweetHome3D\plugins\` (Windows) or `~/Library/Application Support/eTeks/SweetHome3D/plugins/` (macOS) for the `.sh3p`, then relaunch SH3D |
+| `Tools` menu in SH3D has no `Export obj to HASS` item | Plugin not installed or SH3D wasn't restarted. Check the plugins folder (Windows: `%APPDATA%\eTeks\SweetHome3D\plugins\` / macOS: `~/Library/Application Support/eTeks/SweetHome3D/plugins/` / Linux: `~/.eteks/sweethome3d/plugins/`) for the `.sh3p`, then relaunch SH3D |
+| Export refuses an object with spaces / non-ASCII name | ExportToHASS only accepts `a-zA-Z0-9_`. Rename the offending object in SH3D using underscores instead of spaces (e.g. `Living_Main_Light`) and re-export |
 | 24 entities in card YAML, the whole card breaks | Don't paste them all at once. Wire **1-2 entities → save → confirm → add 5 more**. Incremental wiring keeps the typo blast radius small |
 
 ### Mapping best practice — "one change, verify, next"
