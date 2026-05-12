@@ -141,6 +141,15 @@ def convert(
 
     rules = MappingRules.from_yaml(mapping_yaml) if mapping_yaml else None
     mappings = suggest_entities(node_names, rules=rules)
+
+    # Guard: if --mapping points at the same file we're about to write, copy
+    # the user's edited yaml to .bak before clobbering it. Avoids destroying
+    # hand-curated entity mappings on re-runs.
+    if mapping_yaml and mapping_yaml.resolve() == mapping_path.resolve():
+        backup = mapping_path.with_suffix(mapping_path.suffix + ".bak")
+        backup.write_bytes(mapping_path.read_bytes())
+        console.print(f"  [dim]backup -> {_mask_path(backup)}[/dim]")
+
     dump_entity_mapping_yaml(mappings, mapping_path)
 
     candidates = extract_lights(home.lights)
@@ -201,6 +210,26 @@ def pack(
     console.print(
         f"  light fixtures: {'visible' if show_light_fixtures else 'hidden (transparent)'}"
     )
+
+    # Emit a sibling .nodes.txt listing every mesh node name in the GLB so
+    # the user can copy/paste them as object_id values in their card YAML.
+    import trimesh as _trimesh
+
+    nodes_path = written.with_suffix(".nodes.txt")
+    scene = _trimesh.load(str(written))
+    mesh_names = sorted(
+        scene.geometry.keys()
+        if isinstance(scene, _trimesh.Scene)
+        else [getattr(scene, "metadata", {}).get("name", "geometry")]
+    )
+    nodes_path.write_text(
+        "# Mesh node names inside the packed GLB.\n"
+        "# Use these verbatim as `object_id` values in your floor3d-card YAML.\n"
+        + "\n".join(mesh_names)
+        + "\n",
+        encoding="utf-8",
+    )
+    console.print(f"  nodes -> {_mask_path(nodes_path)}  ({len(mesh_names)} mesh names)")
     console.print("[green]done.[/green]")
 
 

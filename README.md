@@ -1,10 +1,10 @@
 # floor3d-toolkit
 
-> **Sweet Home 3D 도면 → Home Assistant 3D 평면도, 5분 만에.**
-> `home.obj` + `home.mtl` + jpeg 텍스처 14개를 텍스처 임베드된 `.glb` 하나로 패키징해서 Home Assistant `floor3d-card`에 그대로 꽂아 쓸 수 있게 해 줍니다.
+> **Sweet Home 3D 도면을 Home Assistant `floor3d-card`에 깔끔하게 띄우기 위한 Python CLI.**
+> Sweet Home 3D `ExportToHASS` 플러그인 결과물(`home.obj` + `home.mtl` + jpeg 텍스처 14개)을 텍스처 임베드된 `.glb` 한 파일로 패키징해서 HA에 바로 꽂아 쓸 수 있게 해 줍니다.
 
 <p align="center">
-  <img src="docs/images/hero.png" alt="floor3d-card 안에 렌더링된 30평형 아파트" width="640">
+  <img src="https://raw.githubusercontent.com/redchupa/floor3d-toolkit/main/docs/images/hero.png" alt="floor3d-card 안에 렌더링된 30평형 아파트" width="640">
 </p>
 
 [![PyPI](https://img.shields.io/pypi/v/floor3d-toolkit.svg)](https://pypi.org/project/floor3d-toolkit/)
@@ -14,14 +14,14 @@
 
 ---
 
-## 한 줄로
+## 한 줄 요약
 
 ```bash
 pip install floor3d-toolkit
 floor3d-toolkit pack home.obj -o home.glb
 ```
 
-→ Home Assistant의 `/config/www/floor3d/`에 `home.glb` 한 파일만 올리면 끝.
+→ HA의 `/config/www/floor3d/`에 `home.glb` 한 파일만 올리면 끝.
 
 ---
 
@@ -31,44 +31,53 @@ floor3d-toolkit pack home.obj -o home.glb
 ✅ Home Assistant `floor3d-card`를 시도해 봤는데 세팅이 너무 복잡해서 포기했다
 ✅ 클릭 한 번에 거실 조명 ON/OFF, 상태 한눈에 보이는 3D 대시보드를 갖고 싶다
 
-— 이 모든 분께 도움이 됩니다.
-
 ---
 
-## 왜 만들었나요?
+## 왜 만들었나?
 
 [floor3d-card](https://github.com/adizanni/floor3d-card)는 멋진 카드인데 **세팅이 진짜 번거롭습니다**:
 
 | 기존 방식 | floor3d-toolkit 사용 |
 |---|---|
-| Sweet Home 3D에서 `Export to Home Assistant` → `home.obj` + `home.mtl` + jpeg 14개 + `home.json` 우르르 | `pack` 명령 한 번 → `home.glb` 하나 |
+| Sweet Home 3D + ExportToHASS → `home.obj` + `home.mtl` + jpeg 14개 + `home.json` 우르르 | `pack` 명령 한 번 → `home.glb` 하나 |
 | HA의 `/config/www/floor3d/` 폴더에 모든 파일 업로드 | 한 파일만 업로드 |
-| GLB 안의 mesh 노드 이름을 찾기 위해 Three.js 인스펙터 또는 Blender 사용 | `--show-light-fixtures`로 시각적으로 확인 |
+| GLB 안의 mesh 노드 이름을 찾기 위해 Three.js 인스펙터 또는 Blender 사용 | `.nodes.txt` 자동 생성 — 복사·붙여넣기로 끝 |
 | 카드 YAML에 24개+ 엔티티 매핑 손으로 작성 | `convert` 모드면 매핑 YAML 자동 생성 |
 | 카드가 조명 OFF 상태면 진짜 캄캄해서 평면도 안 보임 | emissive 베이스라인 자동 적용 → 야간에도 식별 |
 | `media_player` 엔티티 박으면 카드 크래시 (`Cannot read properties of null (reading 'color')`) | 도메인 인식 `type3d` + 자동 colorcondition으로 차단 |
 
 ---
 
-## 5분 워크플로 (제일 추천)
+## 사전 준비 — Sweet Home 3D 및 ExportToHASS 플러그인 설치
 
-### 📋 준비물
+> 이 toolkit은 Sweet Home 3D의 **ExportToHASS 플러그인이 출력한 OBJ 번들**을 입력으로 받습니다. 따라서 두 가지 1회 설치가 필요합니다.
 
-- Python 3.11+
-- Sweet Home 3D ([무료, GPL OSS](http://www.sweethome3d.com/))
-- Home Assistant + [HACS](https://hacs.xyz) (floor3d-card 설치용)
+### 1) Sweet Home 3D 설치 (무료 GPL OSS)
+- 다운로드: http://www.sweethome3d.com/download.jsp
 
-### 단계 1 — 도면 그리기
+### 2) ExportToHASS 플러그인 설치
 
-Sweet Home 3D 실행, 본인 집 도면 그리기. 단순한 사각형 평면도여도 OK.
+별도 GitHub repo에서 `.sh3p` 파일 다운로드 후 Sweet Home 3D에 설치:
 
-**핵심**: 각 방마다 천장 조명 하나 이상 배치 + 조명 이름을 알아보기 쉽게 (예: `Living Main`, `안방 조명`).
+1. **플러그인 다운로드**: https://github.com/adizanni/ExportToHASS/releases/latest/download/ExportToHASSPlugin.sh3p
+2. Sweet Home 3D 실행 → 메뉴 `파일 → 환경설정 → 플러그인` (또는 `File → Preferences → Plugins`)
+3. **Import...** 또는 다운로드한 `.sh3p` 파일을 Sweet Home 3D 창에 드래그
+4. Sweet Home 3D 재시작
+5. 메뉴 `파일 → 내보내기` 안에 **`Home Assistant 호환 형식`** (또는 영문 `Export to Home Assistant`) 항목이 보이면 설치 완료
 
-### 단계 2 — Home Assistant로 내보내기
+> 자세한 안내: https://github.com/adizanni/ExportToHASS
 
-Sweet Home 3D는 별도 ExportToHASS 플러그인이 필요합니다 ([Adizanni 플러그인](https://github.com/adizanni/floor3d-card?tab=readme-ov-file#converting-your-sweet-home-3d-floor-plan)).
+---
 
-- 메뉴 `파일 → 내보내기 → Home Assistant 호환 형식` (또는 영문 `Export to Home Assistant`)
+## 5분 워크플로
+
+### 단계 1 — Sweet Home 3D로 도면 그리기
+
+본인 집 도면 그리기. **각 방마다 천장 조명 하나 이상** 배치 + 조명 이름을 알아보기 쉽게 (예: `Living Main`, `안방 조명`).
+
+### 단계 2 — Home Assistant 호환 형식으로 내보내기
+
+- 메뉴 `파일 → 내보내기 → Home Assistant 호환 형식`
 - 출력 폴더 선택 (예: `~/Desktop/myhome_export/`)
 - 폴더 안에 다음 생성됨:
   ```
@@ -86,15 +95,13 @@ cd ~/Desktop/myhome_export
 floor3d-toolkit pack home.obj -o dist/home.glb
 ```
 
-→ `dist/home.glb` 한 파일에 텍스처 14개 임베드 (보통 9~12MB). 1초 만에 완료.
+→ `dist/` 안에 두 파일:
+- `home.glb` — 텍스처 임베드된 3D 모델 (보통 9~12MB)
+- `home.nodes.txt` — GLB 안의 mesh 노드 이름 목록 (단계 5에서 사용)
 
 ### 단계 4 — Home Assistant에 업로드
 
-HA의 `/config/www/floor3d/` 디렉터리에 `home.glb`만 복사.
-방법은 편한 것:
-- Samba addon
-- File editor addon
-- SCP/SSH
+HA의 `/config/www/floor3d/` 디렉터리에 `home.glb` 만 복사 (Samba addon / File editor addon / SCP 등).
 
 ### 단계 5 — floor3d-card 추가
 
@@ -112,7 +119,7 @@ globalLightPower: 0.25
 entities:
   - entity: light.living_room_main
     type3d: light
-    object_id: light_living_main_light   # GLB 안의 mesh 노드 이름
+    object_id: light_living_main_light   # ← home.nodes.txt 에서 복사
     action: more-info
     light:
       lumens: 1000
@@ -120,18 +127,23 @@ entities:
       distance: 400
       shadow: 'yes'
       vertical_alignment: bottom
-  # ... 본인 조명 추가
+  # ... 본인 조명마다 추가
 ```
 
-저장 → 3D 평면도가 떠야 합니다. 클릭하면 조명 토글, ON/OFF 상태가 실시간 반영. 🎉
+> `object_id` 는 단계 3에서 생성된 `home.nodes.txt` 의 이름 그대로 복사하세요. 천장 조명들은 `light_*` 접두사로 시작합니다.
+> 라이트 위치가 GLB 안에서 정확히 어디인지 시각적으로 확인하고 싶으면 단계 3에 `--show-light-fixtures` 옵션 추가:
+> ```bash
+> floor3d-toolkit pack home.obj -o dist/home_debug.glb --show-light-fixtures
+> ```
+> 매핑 작업 다 끝나면 옵션 빼고 다시 pack → 라이트 박스 투명 처리된 깔끔한 GLB.
 
-> **`object_id` 어떻게 알아내요?** 단계 3에서 `--show-light-fixtures` 옵션 켜면 GLB에 작은 박스가 보여서 라이트 위치 한눈에 파악 가능. 매핑 다 한 후엔 옵션 빼고 다시 pack.
+저장 → 3D 평면도가 떠야 합니다. 클릭하면 조명 토글, ON/OFF 상태가 실시간 반영 🎉
 
 ---
 
-## 진짜 빈 손에서 시작하고 싶다면 (`convert` 모드)
+## sh3d 파일 직접 변환 모드 (`convert`)
 
-Sweet Home 3D의 `Export to Home Assistant` 플러그인이 없거나 텍스처 따위 신경 안 쓰고 빨리 프로토타입만 보고 싶을 때:
+ExportToHASS 플러그인 없이 `.sh3d` 파일 자체에서 시작하고 싶을 때:
 
 ```bash
 floor3d-toolkit convert myhome.sh3d --output dist/ --name home
@@ -143,18 +155,28 @@ floor3d-toolkit convert myhome.sh3d --output dist/ --name home
 dist/
 ├── home.glb                        # floor3d-card에 바로 꽂는 3D 모델
 ├── home.obj / home.mtl             # 디버깅용
-├── home.entity-mapping.yaml        # mesh ↔ HA 엔티티 매핑 (편집 대상)
+├── home.entity-mapping.yaml        # 자동 생성된 매핑 템플릿 (수정 X — 출력 파일)
 └── home.card-config.yaml           # Lovelace에 그대로 붙여넣는 카드 설정
 ```
 
-매핑 YAML을 본인 HA 엔티티 ID로 채워서 재실행하면 카드 YAML에 자동 반영:
+### 본인 엔티티 매핑 적용 흐름 (⚠️ 입력 / 출력 yaml 분리 필수)
+
+`home.entity-mapping.yaml`은 매 실행마다 **덮어씌워지는 출력 파일**입니다. 본인이 편집한 매핑은 **별도 입력 파일**로 분리해서 관리하세요:
 
 ```bash
+# 1. 자동 생성된 매핑 파일을 입력용으로 복사
+cp dist/home.entity-mapping.yaml dist/home.user-mapping.yaml
+
+# 2. user-mapping.yaml 을 에디터로 열고 본인 HA entity_id 채워 넣기
+
+# 3. --mapping 으로 user-mapping.yaml 지정해서 재변환
 floor3d-toolkit convert myhome.sh3d \
   --output dist/ \
   --name home \
-  --mapping dist/home.entity-mapping.yaml
+  --mapping dist/home.user-mapping.yaml
 ```
+
+> 동일 path를 `--mapping`으로 넘기더라도 toolkit이 자동으로 `.bak` 백업을 만들지만, 입력/출력 분리가 가장 안전합니다.
 
 ### `convert` 옵션
 
@@ -164,6 +186,7 @@ floor3d-toolkit convert myhome.sh3d \
 | `--camera <preset>` | `iso` (기본) / `iso-far` / `iso-close` / `top` / `side` |
 | `--light-preset <name>` | `warm` (기본) / `warm-bright` / `cool` / `daylight` / `subtle` |
 | `--skip-furniture-meshes` | 가구를 박스로만 처리 (속도/용량 우선) |
+| `--glb-url <url>` | 카드 YAML이 가리킬 GLB URL (기본 `/local/floor3d/home.glb`) |
 
 ---
 
@@ -172,42 +195,58 @@ floor3d-toolkit convert myhome.sh3d \
 ### Q. 카드가 안 뜨고 "Finished with errors" 만 보여요
 
 브라우저 콘솔(F12) 열어서 에러 메시지 확인. 가장 흔한 원인:
-- **`Entity not found`**: 카드 YAML의 entity_id가 HA에 실제 존재하지 않음. → 매핑 YAML에서 해당 줄 `null`로
-- **`Cannot read properties of null (reading 'color')`**: `media_player`나 `sensor` 같은 비표준 도메인을 `type3d: color`로 박았을 때. → toolkit이 자동 처리하니 toolkit 출력 그대로 쓰면 발생 X
+- **`Entity not found`**: 카드 YAML의 entity_id가 HA에 실제 존재하지 않음. → 매핑 YAML에서 해당 줄 `null`로 바꾸기
+- **`Cannot read properties of null (reading 'color')`**: `media_player`/`sensor` 같은 비표준 도메인을 `type3d: color`로 박았을 때. toolkit 출력 그대로 쓰면 발생 X (도메인 인식 자동 처리). 직접 카드 YAML 쓸 때 주의
 
 ### Q. 좌표축만 보이고 모델이 안 보여요
 
-`camera_position` / `camera_target`이 잘못 설정됐거나 너무 멀리. toolkit `convert` 모드는 자동 산출하지만 `pack` 모드는 카드 YAML에서 수동 지정 필요. 기본 `floor3d-card`가 자동으로 모델을 프레임 안에 잡아주는 동작 있어요 — 카메라 옵션 다 빼고 재시도.
+`camera_position` / `camera_target`이 잘못됐거나 너무 멀리. 카드 YAML에서 카메라 옵션 모두 빼고 floor3d-card의 자동 프레이밍에 맡기세요. `convert` 모드는 자동 산출, `pack` 모드는 카드 YAML에 카메라 미지정이 디폴트.
 
-### Q. 모든 조명을 켰는데 화이트아웃 (너무 밝아요)
+### Q. 모든 조명을 켰는데 화이트아웃
 
-per-light `lumens`가 너무 강함. 500 이하로 낮추세요. 추천 시작값:
+per-light `lumens`가 너무 강함. 500~1000 사이에서 시작 + `globalLightPower: 0.25` (전역 어둡게). 추천 시작값:
 ```yaml
+globalLightPower: 0.25
+shadow: 'yes'
+extralightmode: 'yes'
+# per-light
 light:
-  lumens: 800
+  lumens: 1000
   color: '#ffffff'
   distance: 400
 ```
 
 ### Q. 조명 OFF 상태에서 너무 캄캄해요
 
-`globalLightPower`을 0.4~0.6으로 올리세요. 또는 toolkit으로 다시 pack:
+toolkit으로 다시 pack — 자체 `emissive_factor: 0.18`이 모든 메시에 자체 발광을 부여해서 야간에도 식별 가능:
 ```bash
 floor3d-toolkit pack home.obj -o home.glb
-# emissive_factor 기본 0.18 적용 — 모든 메시가 자체 발광
 ```
 
 ### Q. 라이트 위치 박스가 보여요 (작은 흰 점들)
 
-`pack` 시 `--show-light-fixtures` 옵션 켜져 있는 상태. 기본은 투명 처리.
+매핑 디버깅용. 매핑 완료 후엔 옵션 빼고 다시 pack → 자동 투명:
 ```bash
-floor3d-toolkit pack home.obj -o home.glb     # 투명 (기본)
-floor3d-toolkit pack home.obj -o home.glb --show-light-fixtures   # 표시
+floor3d-toolkit pack home.obj -o home.glb                       # 투명 (기본)
+floor3d-toolkit pack home.obj -o home.glb --show-light-fixtures # 표시
 ```
 
 ### Q. 가구 클릭 시 popup 안 떠요
 
-엔티티 매핑이 안 되어 있는 노드는 클릭 비활성. 매핑 YAML에 `furn_<이름>: switch.<entity_id>` 추가 후 재실행.
+엔티티 매핑이 안 되어 있는 노드는 클릭 비활성. 카드 YAML에 다음 형태로 추가:
+```yaml
+- entity: media_player.living_tv
+  type3d: color
+  object_id: Flat_TV_1
+  action: more-info
+  colorcondition:
+    - state: 'playing'
+      color: '#ffc864'
+    - state: 'idle'
+      color: '#2d3a55'
+    - state: 'off'
+      color: '#2d3a55'
+```
 
 ---
 
@@ -235,20 +274,25 @@ ruff check .
 
 ## 후원 💝
 
-이 패키지가 도움이 되었다면 따뜻한 커피 한 잔 부탁드립니다.
+이 패키지가 도움이 되었다면 따뜻한 커피 한 잔 부탁드립니다 🙏
 
 <p align="center">
-  <a href="https://toss.me/redchupa">
-    <img src="docs/images/toss-donation.png" alt="토스로 후원하기" width="220">
-  </a>
-  &nbsp;&nbsp;
-  <a href="https://www.paypal.com/paypalme/redchupa">
-    <img src="docs/images/paypal-donation.png" alt="Donate via PayPal" width="220">
-  </a>
+  <table align="center">
+    <tr>
+      <td align="center">
+        <b>토스</b><br/>
+        <img src="https://raw.githubusercontent.com/redchupa/floor3d-toolkit/main/docs/images/toss-donation.png" alt="Toss 후원 QR" width="220"/><br/>
+        <code>1000-1261-7813</code> (우*만)
+      </td>
+      <td align="center">
+        <b>PayPal</b><br/>
+        <img src="https://raw.githubusercontent.com/redchupa/floor3d-toolkit/main/docs/images/paypal-donation.png" alt="PayPal 후원 QR" width="220"/>
+      </td>
+    </tr>
+  </table>
 </p>
 
-- **토스**: `1000-1261-7813` (우*만)
-- *"커피 한잔은 사랑입니다"* ☕
+*"커피 한잔은 사랑입니다"* ☕
 
 ---
 
@@ -261,29 +305,40 @@ ruff check .
 <details>
 <summary><b>English summary</b></summary>
 
-**floor3d-toolkit** packages Sweet Home 3D's `Export to Home Assistant` output
-(`home.obj` + `home.mtl` + 14 jpeg textures) into a single texture-embedded
-`.glb` that drops straight into Home Assistant's `floor3d-card`.
+**floor3d-toolkit** packages Sweet Home 3D's `Export to Home Assistant` plugin
+output (`home.obj` + `home.mtl` + 14 jpeg textures) into a single
+texture-embedded `.glb` that drops straight into Home Assistant's
+`floor3d-card`.
+
+### Prerequisites
+
+1. Sweet Home 3D (free / GPL): http://www.sweethome3d.com/download.jsp
+2. ExportToHASS plugin (`.sh3p`): https://github.com/adizanni/ExportToHASS/releases/latest
+
+### Use
 
 ```bash
 pip install floor3d-toolkit
 floor3d-toolkit pack home.obj -o home.glb
 ```
 
+The command also writes `home.nodes.txt` next to the GLB, listing every mesh
+node name. Copy those names into your card's `object_id` fields.
+
+### Highlights
+
 - One file replaces 15+ scattered assets in `/config/www/floor3d/`.
 - Light fixtures hidden by default for a clean look;
-  `--show-light-fixtures` reveals them while you wire up
-  `entity-mapping.yaml`.
-- Emissive baseline keeps the floor plan readable even when all HA lights
-  are off.
+  `--show-light-fixtures` reveals them while you wire up the card.
+- Emissive baseline keeps the floor plan readable even when every HA light
+  is off.
 - Domain-aware `type3d` selection prevents floor3d-card crashes on
-  `media_player` / `sensor` entities.
-- Includes a `convert` command that goes straight from `.sh3d` → glb +
-  entity-mapping.yaml + card-config.yaml.
+  `media_player` / `sensor` / `fan` entities.
+- A `convert` command also goes straight from `.sh3d` → glb +
+  `entity-mapping.yaml` + `card-config.yaml`, with automatic backup of
+  user-edited mapping yaml on re-runs.
 
 MIT-licensed. Free OSS dependencies only (`trimesh`, `pygltflib`, `lxml`,
 `pyyaml`, `unidecode`, `networkx`, `scipy`).
-
-See [docs/tutorial-en.md](docs/tutorial-en.md) for the full walkthrough.
 
 </details>
