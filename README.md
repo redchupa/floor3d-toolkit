@@ -33,6 +33,24 @@ floor3d-toolkit pack home.obj -o home.glb
 
 ---
 
+## 잠깐 — 두 가지 다른 접근 방법이 있습니다
+
+Sweet Home 3D 도면을 HA에 띄우는 방법은 사실 **두 가지 플러그인 + 두 가지 카드**가 존재해요. 본인 취향대로 선택하세요. 이 toolkit은 **방법 A** 전용입니다.
+
+| | **방법 A — 동적 3D** (이 toolkit) | **방법 B — 정적 PNG** |
+|---|---|---|
+| SH3D 플러그인 | [adizanni/ExportToHASS](https://github.com/adizanni/ExportToHASS) | [shmuelzon/HomeAssistantFloorPlan](https://github.com/shmuelzon/home-assistant-floorplan) |
+| HA 카드 | [floor3d-card](https://github.com/adizanni/floor3d-card) | HA 기본 [picture-elements](https://www.home-assistant.io/dashboards/picture-elements/) |
+| 렌더 | 실시간 Three.js — 카메라 회전·확대 가능 | Sweet Home 3D가 미리 렌더한 PNG |
+| 무게 | GLB 한 개 (~10MB), GPU 부하 있음 | PNG 여러 장, 매우 가벼움 |
+| 조명 ON/OFF | 실시간 광원 시뮬레이션 | PNG 두 장 전환 (ON/OFF 미리 렌더) |
+| 카메라 | 자유 회전 | 고정 (도면 그릴 때 각도 결정) |
+| 이 toolkit 필요? | **예** — `pack` 명령으로 패키징 | 아니오 — `floorplan.yaml` 그대로 사용 |
+
+→ **모바일에서 가볍게 보기 위주**면 방법 B(정적 PNG)도 좋은 선택이에요. 회전 가능한 **3D 인터랙티브**가 필요하면 방법 A.
+
+---
+
 ## 왜 만들었나?
 
 [floor3d-card](https://github.com/adizanni/floor3d-card)는 멋진 카드인데 **세팅이 진짜 번거롭습니다**:
@@ -73,7 +91,11 @@ floor3d-toolkit pack home.obj -o home.glb
 
 ### 단계 1 — Sweet Home 3D로 도면 그리기
 
-본인 집 도면 그리기. **각 방마다 천장 조명 하나 이상** 배치 + 조명 이름을 알아보기 쉽게 (예: `Living Main`, `안방 조명`).
+본인 집 도면 그리기. **각 방마다 천장 조명 하나 이상** 배치.
+
+> ⚠️ **조명 이름은 반드시 영문으로 짓기** (예: `Living Main`, `Bedroom Master`). 한글 이름은 ExportToHASS 플러그인이 정상 처리하지 못합니다 (`light.한글` 형태의 HA entity ID는 OK, SH3D 안의 mesh **이름**만 영문).
+>
+> 한글 방 이름이 익숙하면 우선 도면은 영문 라벨로 그리고, 매핑 단계에서 본인 HA entity ID (한글 가능)와 연결하는 식으로 분리하세요.
 
 ### 단계 2 — Home Assistant 호환 형식으로 내보내기
 
@@ -230,6 +252,24 @@ floor3d-toolkit pack home.obj -o home.glb
 floor3d-toolkit pack home.obj -o home.glb                       # 투명 (기본)
 floor3d-toolkit pack home.obj -o home.glb --show-light-fixtures # 표시
 ```
+
+### Q. SH3D `Tools` 메뉴에 Export to HASS 메뉴가 안 보여요
+
+플러그인이 설치 안 됐거나 SH3D 재시작 필요. 다시 확인:
+1. `%APPDATA%\eTeks\SweetHome3D\plugins\` (Windows) 또는 `~/Library/Application Support/eTeks/SweetHome3D/plugins/` (macOS)에 `ExportToHASSPlugin.sh3p` 있는지
+2. SH3D 완전 종료 후 재시작
+3. `Tools` 메뉴에 `Export obj to HASS` 보이면 OK
+
+### Q. 매핑이 24개 넘게 있어서 작업이 너무 복잡해요
+
+**한 번에 다 하지 마세요.** 흔한 실수가 카드 YAML을 24개 엔티티 전부 채워서 한꺼번에 저장하는 것. 그러다 한 곳 오타나면 카드 전체가 깨져요.
+
+권장 흐름:
+1. 우선 엔티티 1~2개만 매핑 → 카드 저장 → 동작 확인
+2. 잘 되면 다음 5개 추가 → 다시 저장 → 확인
+3. 단계별 누적
+
+각 단계마다 콘솔(F12) 에러 한 줄씩 잡으면 디버깅이 훨씬 쉽습니다.
 
 ### Q. 가구 클릭 시 popup 안 떠요
 

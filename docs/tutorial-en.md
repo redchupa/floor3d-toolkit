@@ -7,6 +7,23 @@ Time budget: 1–2 hours for drawing (one-off), 10 minutes for conversion and HA
 
 ---
 
+## Before you start — two approaches exist
+
+There are actually **two** ways to bring a Sweet Home 3D floor plan into HA.
+This tutorial covers **Approach A**.
+
+| | Approach A — **this tutorial** (dynamic 3D) | Approach B (static PNG) |
+|---|---|---|
+| Plugin | `adizanni/ExportToHASS` | `shmuelzon/HomeAssistantFloorPlan` |
+| HA card | `floor3d-card` | built-in `picture-elements` |
+| Feel | rotate / zoom, real-time lighting | lightweight, ON/OFF PNG swap |
+| This toolkit | **used** (`pack` command) | not used |
+
+If you mostly want a lightweight static plan on mobile, Approach B is a
+great choice. Pick Approach A when you want the interactive 3D dashboard.
+
+---
+
 ## 0. Prerequisites
 
 | | |
@@ -34,8 +51,13 @@ Time budget: 1–2 hours for drawing (one-off), 10 minutes for conversion and HA
 4. Rename each light to something recognisable (e.g. `Living Main Light`).
 5. Save as `myhome.sh3d`.
 
+> ⚠️ **Use Latin (ASCII) names only inside SH3D.** The ExportToHASS plugin
+> does not handle non-ASCII mesh names correctly. Korean / Japanese / etc.
+> HA entity IDs are fine — only the SH3D mesh node names need to be ASCII.
+
 The light's name becomes the GLB's mesh node name, which is what
-`floor3d-card` uses as `object_id`. Clear names = easier mapping later.
+`floor3d-card` uses as `object_id`. Clear, ASCII names = easier mapping
+later.
 
 ---
 
@@ -155,6 +177,21 @@ without the flag → clean production GLB with invisible fixture boxes.
 | Whole scene blown out white | Per-light `lumens` too high. Drop to 500-800. Pair with `globalLightPower: 0.25` |
 | Pitch black when lights are off | Re-pack with `floor3d-toolkit pack` — `emissive_factor=0.18` keeps the plan readable at night |
 | Adding furniture in SH3D broke existing mappings | Same name → suffix `_1`, `_2`. Use unique names |
+| `Tools` menu in SH3D has no export item | Plugin not installed or SH3D wasn't restarted. Check `%APPDATA%\eTeks\SweetHome3D\plugins\` (Windows) or `~/Library/Application Support/eTeks/SweetHome3D/plugins/` (macOS) for the `.sh3p`, then relaunch SH3D |
+| 24 entities in card YAML, the whole card breaks | Don't paste them all at once. Wire **1-2 entities → save → confirm → add 5 more**. Incremental wiring keeps the typo blast radius small |
+
+### Mapping best practice — "one change, verify, next"
+
+floor3d-card has many knobs. Tweaking five at once and then debugging is a
+losing battle. Recommended loop:
+
+1. Change one thing (e.g. `lumens: 1000`)
+2. Save the card + refresh
+3. Look — did anything change?
+4. If OK, move on. If broken, only that one change needs reverting.
+
+Same goes for entity mapping: ship the card with one entity first, watch it
+work, *then* add the rest.
 
 ---
 

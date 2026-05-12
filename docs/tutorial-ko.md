@@ -6,6 +6,21 @@
 
 ---
 
+## 시작 전 — 두 가지 다른 접근 방법
+
+Sweet Home 3D 도면을 HA에 띄우는 방법은 **두 가지**가 있어요. 이 튜토리얼은 **방법 A**입니다.
+
+| | 방법 A — **이 튜토리얼** (동적 3D) | 방법 B (정적 PNG) |
+|---|---|---|
+| 플러그인 | `adizanni/ExportToHASS` | `shmuelzon/HomeAssistantFloorPlan` |
+| HA 카드 | `floor3d-card` | 기본 `picture-elements` |
+| 특징 | 회전·확대 가능, 실시간 광원 | 가벼움, PNG 두 장 ON/OFF 전환 |
+| 이 toolkit | **사용** (`pack` 명령) | 사용 안 함 |
+
+모바일에서 가벼운 정적 평면도 위주면 방법 B도 좋은 선택. 인터랙티브 3D가 필요하면 이 튜토리얼대로 진행.
+
+---
+
 ## 0. 준비물
 
 | | |
@@ -31,12 +46,24 @@
 2. 벽 그리기 — 실제 도면 치수대로
 3. 가구 배치 — 기본 카탈로그의 stock 모델 사용 권장
 4. **각 방·구역마다 천장 조명 1개 이상** 배치 — `Lights` 카테고리에서 가져옴
-5. 조명 이름을 알아보기 쉽게 변경 (예: "Living Main Light", "안방 조명")
+5. 조명 이름을 알아보기 쉽게 변경 (예: `Living Main Light`, `Bedroom Master`)
 6. `myhome.sh3d`로 저장
+
+### ⚠️ 조명 이름은 반드시 영문으로!
+
+`ExportToHASS` 플러그인은 한글 이름을 정상 처리하지 못합니다. 도면 안의 **mesh node 이름**은 무조건 영문/숫자/언더스코어로:
+
+| 안 됨 | 됨 |
+|---|---|
+| `안방 조명` | `Bedroom Master Light` |
+| `거실 메인` | `Living Main` |
+| `주방 식탁` | `Kitchen Dining` |
+
+> 한글 HA entity ID(`light.한글_이름`)는 OK — 매핑 단계에서 영문 mesh node ↔ 한글 entity_id 자유 연결.
 
 ### 조명 이름 짓는 팁
 
-`ExportToHASS` 가 조명을 GLB의 mesh node로 변환할 때 이름이 매핑됩니다. 추후 카드 YAML 작성 시 이 mesh node 이름이 그대로 `object_id` 가 됩니다. 이름이 명확할수록 매핑이 쉬워요.
+`ExportToHASS` 가 조명을 GLB의 mesh node로 변환할 때 이름이 매핑됩니다. 추후 카드 YAML 작성 시 이 mesh node 이름이 그대로 `object_id` 가 됩니다. 이름이 명확하고 영문이면 매핑이 매우 쉬워져요.
 
 ---
 
@@ -156,6 +183,19 @@ floor3d-toolkit pack home.obj -o dist/home_debug.glb --show-light-fixtures
 | 모든 조명 켰는데 너무 화이트아웃 | per-light `lumens` 너무 강함. 500~800 사이로 낮추기 + `globalLightPower: 0.25` |
 | 조명 OFF 상태에서 너무 캄캄 | `floor3d-toolkit pack` 으로 다시 패키징 (emissive_factor=0.18 자동 적용 — 야간에도 식별) |
 | Sweet Home 3D에서 가구 추가했더니 매핑 깨짐 | 같은 이름 추가 시 `_1`, `_2` 접미사 생김. 이름 다르게 짓기 |
+| SH3D `Tools` 메뉴에 export 항목 안 보임 | 플러그인 설치 실패. `%APPDATA%\eTeks\SweetHome3D\plugins\` (Windows) 또는 `~/Library/Application Support/eTeks/SweetHome3D/plugins/` (macOS)에 `.sh3p` 있는지 확인 후 SH3D 재시작 |
+| 24개 엔티티 다 매핑했더니 카드 깨짐 | **한 번에 다 채우지 마세요**. 1~2개 매핑 → 저장 → 동작 확인 → 다음 5개 추가 → 반복. 오타 잡기 훨씬 쉬움 |
+
+### 매핑 작업 베스트 프랙티스 — "변경 1개씩, 검증 → 다음"
+
+floor3d-card 설정은 옵션이 많아 한꺼번에 6~7개 바꾸면 어디서 문제가 생겼는지 추적 불가능합니다. 권장 흐름:
+
+1. 변경 1개 (예: `lumens: 1000`)
+2. 카드 저장 + 새로고침
+3. 결과 확인 (어떤 변화가 있는지 본인 눈으로)
+4. OK면 다음 변경. 깨지면 그 변경만 되돌리기
+
+특히 처음 카드 YAML 만들 땐 엔티티 1개부터 시작해서 점진적으로 추가하는 게 가장 빠릅니다.
 
 ---
 
